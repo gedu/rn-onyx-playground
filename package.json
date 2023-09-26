@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "react": "18.2.0",
-    "react-native": "0.72.5"
+    "react-native": "0.72.5",
+    "react-native-onyx": "^1.0.89"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
@@ -31,6 +32,6 @@
     "typescript": "4.8.4"
   },
   "engines": {
-    "node": ">=16"
+    "node": "16.15.1"
   }
 }
