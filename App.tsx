@@ -1,26 +1,11 @@
 import React from 'react';
-import {SafeAreaView, StatusBar, Text, useColorScheme} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
+import RootStack from './src/stacks/root';
 
-import {Colors} from 'react-native/Libraries/NewAppScreen';
-
-function App(): JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
+function App() {
   return (
     <NavigationContainer>
-      <SafeAreaView style={backgroundStyle}>
-        <StatusBar
-          barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-          backgroundColor={backgroundStyle.backgroundColor}
-        />
-
-        <Text>Onyx Playground</Text>
-      </SafeAreaView>
+      <RootStack />
     </NavigationContainer>
   );
 }
