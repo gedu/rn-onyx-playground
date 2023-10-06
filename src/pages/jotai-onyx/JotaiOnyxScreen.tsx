@@ -3,11 +3,11 @@ import {View, Text} from 'react-native';
 import {withOnyx} from 'react-native-onyx';
 import {ONYX_KEYS} from '../../lib/onyx-keys';
 
-type JotaiOnyxScreenProps = {
+type Props = {
   betas: string[];
 };
 
-function JotaiOnyxScreen({betas}: JotaiOnyxScreenProps) {
+function JotaiOnyxScreen({betas}: Props) {
   return (
     <View>
       {betas ? betas.map(beta => <Text>{beta}</Text>) : <Text>No betas</Text>}
@@ -15,7 +15,7 @@ function JotaiOnyxScreen({betas}: JotaiOnyxScreenProps) {
   );
 }
 
-export default withOnyx({
+export default withOnyx<any, Props>({
   betas: {
     key: ONYX_KEYS.BETAS,
   },
