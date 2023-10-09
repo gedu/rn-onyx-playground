@@ -15,7 +15,6 @@ const betasSource = [
   'conciergeTravel',
   'connectedCards',
   'discrepancy',
-  'distanceRequests',
   'domainContactBilling',
   'domainTwoFactorAuth',
   'duplicateDetection',
