@@ -9,6 +9,8 @@ import {
 } from 'react-native';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import type {RootStackParamList} from '../stacks/root';
+import {useFocusEffect} from '@react-navigation/native';
+import {populateOnyx} from '../lib/onyx';
 
 type ScreenName = keyof RootStackParamList;
 
@@ -33,6 +35,12 @@ const keyExtractor = (item: Item) => item.title;
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 function Home({navigation}: Props) {
+  useFocusEffect(
+    useCallback(() => {
+      populateOnyx();
+    }, []),
+  );
+
   const renderItem: ListRenderItem<Item> = useCallback(
     ({item}) => (
       <View style={styles.itemList}>
