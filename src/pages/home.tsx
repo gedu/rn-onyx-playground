@@ -22,11 +22,10 @@ interface Item {
 
 // List experiments here
 const data: Item[] = [
-  {screen: 'Home', title: 'Long FlatList', description: 'Long FlatList'},
   {
     screen: 'JotaiOnyx',
-    title: 'JotaiOnyx',
-    description: 'We will use Jotai and Onyx to manage state',
+    title: 'Onyx with Jotai',
+    description: 'Jotai as a React synchronisation layer for Onyx',
   },
 ];
 
@@ -70,6 +69,7 @@ const styles = StyleSheet.create({
   },
   itemList: {
     paddingHorizontal: 16,
+    alignItems: 'center',
   },
 });
 

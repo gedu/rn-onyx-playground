@@ -1,48 +1,74 @@
-import {atom} from 'jotai';
+import {useCallback} from 'react';
+import {atom, useAtomValue, type Atom} from 'jotai';
+import {selectAtom} from 'jotai/utils';
 import Onyx from 'react-native-onyx';
+import type {NullableProperties} from 'react-native-onyx/lib/types';
 
-let currentSessionId = undefined;
+interface Options {
+  canEvict?: boolean;
+}
 
-export function atomWithOnyx<Value>(key: string, initialValue: Value) {
-  console.log('atomWithOnyx');
-  function OnConnect(setAtom) {
-    console.log('OnConnect');
-    currentSessionId = Onyx.connect({
-      key,
-      waitForCollectionCallback: true,
-      callback: val => {
-        console.log('OnConnect - callback - val: ', val);
-        setAtom(val);
-      },
-    });
-  }
-  const baseAtom = atom<Value>(/*Onyx.get(key) ??*/ initialValue);
+/**
+ * This is a custom, read-only Jotai atom that connects to Onyx and listens for changes to a given key.
+ * It provides a performant way of synchronizing Onyx data with the UI layer.
+ */
+export function atomWithOnyx<Value extends NullableProperties<unknown>>(
+  key: string,
+  initialValue: Value,
+  options: Options = {
+    canEvict: false,
+  },
+) {
+  // Store the current sessionId so we can disconnect when the atom is unmounted
+  let currentSessionId: number | null = null;
+
+  // A base atom that will be used to store the value and respond to Onyx's callbacks
+  const baseAtom = atom<Value>(initialValue);
 
   // TODO: when ready add a dev flag or remove
   baseAtom.debugPrivate = true;
 
   baseAtom.onMount = setAtom => {
-    console.log('onMount');
-    OnConnect(setAtom);
+    // When the atom is mounted, connect to Onyx and listen for changes using the callback
+    currentSessionId = Onyx.connect({
+      key,
+      waitForCollectionCallback: true,
+      callback: value => {
+        // TODO a better way to type the value?
+        setAtom(value as Value);
+      },
+    });
+
+    // Add the key to the eviction block list if it's not allowed to be evicted, remove it otherwise
+    options.canEvict
+      ? Onyx.removeFromEvictionBlockList(key, currentSessionId)
+      : Onyx.addToEvictionBlockList(key, currentSessionId);
+
+    // Disconnect from Onyx and clear the session id when unmounting the atom
     return () => {
-      console.log('onMount - return');
-      if (currentSessionId) {
-        Onyx.disconnect(currentSessionId);
-        currentSessionId = undefined;
+      if (!currentSessionId) {
+        return;
       }
+
+      Onyx.disconnect(currentSessionId);
+      currentSessionId = null;
     };
   };
 
-  const derivedAtom = atom(
-    get => {
-      console.log('derivedAtom - GET');
-      return get(baseAtom);
-    },
-    (get, set, update: Value) => {
-      console.log('derivedAtom - SET: ', update);
-      Onyx.merge(key, update);
-    },
-  );
+  // A derived, read-only atom exposed to the UI layer
+  const derivedAtom = atom(get => get(baseAtom));
 
   return derivedAtom;
+}
+
+/**
+ * An abstraction over collection atoms stored with `atomWithOnyx` that allows you to select a single item by id.
+ */
+export function useAtomWithOnyxById(collectionAtom: Atom<any>, id: string) {
+  return useAtomValue(
+    selectAtom(
+      collectionAtom,
+      useCallback(collection => collection[id], [id]),
+    ),
+  );
 }

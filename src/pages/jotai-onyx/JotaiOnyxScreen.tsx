@@ -1,104 +1,84 @@
-import React, {useEffect} from 'react';
-import {View, Text, FlatList, Button} from 'react-native';
-import Onyx, {withOnyx} from 'react-native-onyx';
+import React, {useEffect, useRef} from 'react';
+import {View, Text, Button, ScrollView} from 'react-native';
+import {useAtomValue} from 'jotai';
 import {ONYX_KEYS} from '../../lib/onyx-keys';
-import {atomWithOnyx} from './atomWithOnyx';
-import {useAtom} from 'jotai';
+import {atomWithOnyx, useAtomWithOnyxById} from './atomWithOnyx';
+import Onyx from 'react-native-onyx';
 
-type Props = {
-  betas: string[];
-};
+const personalDetailsAtom = atomWithOnyx<Record<string, unknown>>(
+  ONYX_KEYS.PERSONAL_DETAILS,
+  {},
+);
 
-const betasAtom = atomWithOnyx<string[]>(ONYX_KEYS.BETAS, []);
+const getRandomName = () => `Test name ${Math.floor(Math.random() * 100)}`;
 
-function AddBetaButton() {
-  const [_, setBetasFromAtom] = useAtom(betasAtom);
+/**
+ * This component performs Onyx updates to mimic a real-world scenario.
+ */
+function EditComponent() {
   return (
-    <View style={{position: 'relative', right: 16}}>
+    <View style={{flex: 1}}>
       <Button
-        title="Add Beta ONYX"
+        title="Change subscribed item"
         onPress={() =>
-          Onyx.update([
-            {
-              onyxMethod: Onyx.METHOD.MERGE,
-              key: ONYX_KEYS.BETAS,
-              value: ['ONYX BUTTON'],
-            },
-          ])
+          Onyx.merge(ONYX_KEYS.PERSONAL_DETAILS, {
+            '0': {name: `${getRandomName()} (subscribed)`},
+          })
         }
       />
 
       <Button
-        title="Add Beta JOTAI"
-        onPress={() => setBetasFromAtom(['JOTAI BUTTON'])}
+        title="Change unsubscribed item"
+        onPress={() =>
+          Onyx.merge(ONYX_KEYS.PERSONAL_DETAILS, {
+            '1': {name: `${getRandomName()} (unsubscribed)`},
+          })
+        }
       />
     </View>
   );
 }
 
-function ScrollListUsingJotai() {
-  const [betasFromAtom, setBetasFromAtom] = useAtom(betasAtom);
-  useEffect(() => {
-    console.log('ScrollListUsingJotai - useEffect: ');
-  }, [betasFromAtom]);
+/**
+ * This component uses Jotai to display data from Onyx (everything under a collection at key).
+ */
+function JotaiProvidedKey() {
+  const personalDetails = useAtomValue(personalDetailsAtom);
+
   return (
-    <View style={{flex: 1, margin: 16, backgroundColor: '#ECFFB0'}}>
-      <FlatList
-        data={betasFromAtom}
-        renderItem={({item}) => <Text>{item}</Text>}
-        keyExtractor={item => item}
-      />
-      <View>
-        <Button
-          title="Add Beta"
-          onPress={() => setBetasFromAtom(['NEW JOTAI BETA'])}
-        />
-      </View>
+    <View style={{flex: 1, padding: 16, backgroundColor: 'lightgreen'}}>
+      <Text>{JSON.stringify(personalDetails, null, 2)}</Text>
     </View>
   );
 }
 
-function ScrollListUsingOnyx({betas}: Props) {
+/**
+ * This component uses Jotai to display the data for a given key on a collection stored in Onyx.
+ * It will only re-render when the data for the given key changes - updates to other keys won't trigger a re-render.
+ */
+function JotaiProvidedKeySelector({id}: {id: string}) {
+  const user = useAtomWithOnyxById(personalDetailsAtom, id);
+  const renderCounter = useRef(0);
+
   useEffect(() => {
-    console.log('ScrollListUsingOnyx - useEffect: ');
-  }, [betas]);
+    renderCounter.current += 1;
+  });
+
   return (
-    <View style={{flex: 1, margin: 16, backgroundColor: '#FF7E6B'}}>
-      <FlatList
-        data={betas}
-        renderItem={({item}) => <Text>{item}</Text>}
-        keyExtractor={item => item}
-      />
-      <View>
-        <Button
-          title="Add Beta"
-          onPress={() => Onyx.merge(ONYX_KEYS.BETAS, ['NEW ONYX BETA'])}
-        />
-      </View>
+    <View style={{flex: 1, padding: 16, backgroundColor: 'pink'}}>
+      <Text>Render count: {renderCounter.current}</Text>
+      <Text>Name: {user?.name ?? 'Unknown'}</Text>
     </View>
   );
 }
-
-const OnyxBetaScrollList = withOnyx<any, Props>({
-  betas: {
-    key: ONYX_KEYS.BETAS,
-  },
-})(ScrollListUsingOnyx);
 
 function JotaiOnyxScreen() {
-  useEffect(() => {
-    console.log('JotaiOnyxScreen - useEffect');
-    return () => {
-      console.log('JotaiOnyxScreen - useEffect - return');
-    };
-  }, []);
-
   return (
-    <View style={{flex: 1}}>
-      <AddBetaButton />
-      <OnyxBetaScrollList />
-      <ScrollListUsingJotai />
-    </View>
+    <ScrollView style={{flex: 1}}>
+      <EditComponent />
+      <JotaiProvidedKeySelector id={'0'} />
+      <JotaiProvidedKey />
+    </ScrollView>
   );
 }
 
