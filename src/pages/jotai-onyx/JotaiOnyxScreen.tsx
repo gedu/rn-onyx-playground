@@ -44,9 +44,15 @@ function EditComponent() {
  */
 function JotaiProvidedKey() {
   const personalDetails = useAtomValue(personalDetailsAtom);
+  const renderCounter = useRef(0);
+
+  useEffect(() => {
+    renderCounter.current += 1;
+  });
 
   return (
     <View style={{flex: 1, padding: 16, backgroundColor: 'lightgreen'}}>
+      <Text>Render count: {renderCounter.current}</Text>
       <Text>{JSON.stringify(personalDetails, null, 2)}</Text>
     </View>
   );
