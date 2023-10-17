@@ -78,11 +78,17 @@ function JotaiProvidedKeySelector({id}: {id: string}) {
   );
 }
 
+const id = '0';
+
 function JotaiOnyxScreen() {
   return (
     <ScrollView style={{flex: 1}}>
       <EditComponent />
-      <JotaiProvidedKeySelector id={'0'} />
+      <JotaiProvidedKeySelector id={id} />
+      <JotaiProvidedKeySelector id={id} />
+      <JotaiProvidedKeySelector id={id} />
+      <JotaiProvidedKeySelector id={id} />
+      <JotaiProvidedKeySelector id={id} />
       <JotaiProvidedKey />
     </ScrollView>
   );
