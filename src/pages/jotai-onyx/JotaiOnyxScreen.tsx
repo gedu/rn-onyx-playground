@@ -86,9 +86,6 @@ function JotaiOnyxScreen() {
       <EditComponent />
       <JotaiProvidedKeySelector id={id} />
       <JotaiProvidedKeySelector id={id} />
-      <JotaiProvidedKeySelector id={id} />
-      <JotaiProvidedKeySelector id={id} />
-      <JotaiProvidedKeySelector id={id} />
       <JotaiProvidedKey />
     </ScrollView>
   );
