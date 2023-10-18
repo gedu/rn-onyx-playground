@@ -1,41 +1,63 @@
-const reportSource = {
-  reportID: '2288427556088185',
-  reportName: '#admins',
-  type: 'chat',
-  chatType: 'policyAdmins',
-  ownerEmail: '__fake__',
-  ownerAccountID: 0,
-  managerEmail: '__fake__',
-  managerID: 0,
-  policyID: 'D861A57D1BA2FC93',
-  participantAccountIDs: [15221359],
-  isPinned: true,
-  lastReadTime: '2023-10-03 11:31:13.171',
-  lastReadSequenceNumber: 0,
-  lastVisibleActionCreated: '2023-10-03 11:31:13.171',
-  lastVisibleActionLastModified: '2023-10-03 11:31:13.171',
-  lastMessageText: '',
-  lastActorAccountID: 0,
-  notificationPreference: 'always',
-  welcomeMessage: '',
-  stateNum: 0,
-  statusNum: 0,
-  oldPolicyName: '',
-  isOwnPolicyExpenseChat: false,
-  lastMessageHtml: '',
-  hasOutstandingIOU: false,
-  writeCapability: 'all',
-  total: 0,
-  currency: 'USD',
-  submitterPayPalMeAddress: '',
-  isWaitingOnBankAccount: false,
-  hasDraft: false,
-  pendingFields: {
-    createChat: null,
-  },
-  errorFields: {
-    createChat: null,
-  },
-  isOptimisticReport: false,
-};
-export default reportSource;
+import {faker} from '@faker-js/faker';
+import {ONYX_KEYS} from '../onyx-keys';
+
+function createRandomReport() {
+  return {
+    reportID: faker.string.numeric({length: 16}),
+    reportName: `#${faker.word.noun()}`,
+    type: faker.helpers.arrayElement(['chat']),
+    chatType: faker.helpers.arrayElement([
+      'policyAdmins',
+      'policyParticipants',
+    ]),
+    ownerEmail: faker.internet.email(),
+    ownerAccountID: faker.string.numeric({length: 16}),
+    managerEmail: faker.internet.email(),
+    managerID: faker.string.numeric({length: 16}),
+    policyID: faker.string.alphanumeric({length: 16, casing: 'upper'}),
+    participantAccountIDs: [faker.string.numeric({length: 16})],
+    isPinned: faker.datatype.boolean(),
+    lastReadTime: faker.date.past().toISOString(),
+    lastReadSequenceNumber: faker.number.int(),
+    lastVisibleActionCreated: faker.date.past().toISOString(),
+    lastVisibleActionLastModified: faker.date.past().toISOString(),
+    lastMessageText: faker.lorem.sentence(),
+    lastActorAccountID: faker.number.int(),
+    notificationPreference: faker.helpers.arrayElement(['always']),
+    welcomeMessage: faker.lorem.sentence(),
+    stateNum: faker.number.int(),
+    statusNum: faker.number.int(),
+    oldPolicyName: faker.lorem.sentence(),
+    isOwnPolicyExpenseChat: faker.datatype.boolean(),
+    lastMessageHtml: '',
+    hasOutstandingIOU: faker.datatype.boolean(),
+    writeCapability: faker.helpers.arrayElement(['all']),
+    total: faker.number.int(),
+    currency: faker.helpers.arrayElement(['USD', 'GBP', 'EUR']),
+    submitterPayPalMeAddress: faker.internet.url(),
+    isWaitingOnBankAccount: faker.datatype.boolean(),
+    hasDraft: faker.datatype.boolean(),
+    pendingFields: {
+      createChat: null,
+    },
+    errorFields: {
+      createChat: null,
+    },
+    isOptimizedReport: faker.datatype.boolean(),
+  };
+}
+
+function createRandomReportsMap(length = 500) {
+  const list = new Array(length).fill(null).map(createRandomReport);
+
+  return list.reduce<Record<string, unknown>>((acc, report) => {
+    if (acc === null) {
+      return {};
+    }
+
+    acc[`${ONYX_KEYS.COLLECTION.REPORTS}${report.reportID}`] = report;
+    return acc;
+  }, {}) as any;
+}
+
+export {createRandomReport, createRandomReportsMap};

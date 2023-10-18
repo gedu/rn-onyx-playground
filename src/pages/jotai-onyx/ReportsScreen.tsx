@@ -4,13 +4,12 @@ import {useAtomValue} from 'jotai';
 import {ONYX_KEYS} from '../../lib/onyx-keys';
 import {atomWithOnyx, useAtomWithOnyxById} from './atomWithOnyx';
 import Onyx, {withOnyx} from 'react-native-onyx';
+import {createRandomReport} from '../../lib/local-source/reportSource';
 
-const personalDetailsAtom = atomWithOnyx<Record<string, unknown>>(
-  ONYX_KEYS.PERSONAL_DETAILS,
+const reportsAtom = atomWithOnyx<Record<string, unknown>>(
+  ONYX_KEYS.COLLECTION.REPORTS,
   {},
 );
-
-const getRandomName = () => `Test name ${Math.floor(Math.random() * 100)}`;
 
 /**
  * This component performs Onyx updates to mimic a real-world scenario.
@@ -19,20 +18,25 @@ function EditComponent() {
   return (
     <View style={{flex: 1}}>
       <Button
-        title="Change subscribed item"
+        title="Change item 0"
         onPress={() =>
-          Onyx.merge(ONYX_KEYS.PERSONAL_DETAILS, {
-            '0': {name: getRandomName()},
+          Onyx.merge(`${ONYX_KEYS.COLLECTION.REPORTS}0`, {
+            ...createRandomReport(),
+            reportID: '0',
           })
         }
       />
 
       <Button
-        title="Change unsubscribed item"
+        title="Change item 1"
         onPress={() =>
-          Onyx.merge(ONYX_KEYS.PERSONAL_DETAILS, {
-            '1': {name: `${getRandomName()} (unsubscribed)`},
-          })
+          Onyx.merge(
+            `${ONYX_KEYS.COLLECTION.REPORTS}1`,
+            Onyx.merge(`${ONYX_KEYS.COLLECTION.REPORTS}1`, {
+              ...createRandomReport(),
+              reportID: '1',
+            }),
+          )
         }
       />
     </View>
@@ -43,7 +47,7 @@ function EditComponent() {
  * This component uses Jotai to display data from Onyx (everything under a collection at key).
  */
 function JotaiProvidedKey() {
-  const personalDetails = useAtomValue(personalDetailsAtom);
+  const reports = useAtomValue(reportsAtom);
   const renderCounter = useRef(0);
 
   useEffect(() => {
@@ -55,7 +59,7 @@ function JotaiProvidedKey() {
       <Text style={{fontWeight: 'bold'}}>
         Render count: {renderCounter.current}
       </Text>
-      <Text>Subscribed keys: {Object.keys(personalDetails).length}</Text>
+      <Text>Keys count: {Object.keys(reports).length}</Text>
     </View>
   );
 }
@@ -63,7 +67,7 @@ function JotaiProvidedKey() {
 /**
  * This component uses withOnyx from 'react-native-onyx' to display data from Onyx (everything under a collection at key).
  */
-function OnyxProvidedKey({personalDetails}: any) {
+function OnyxProvidedKey({reports}: any) {
   const renderCounter = useRef(0);
 
   useEffect(() => {
@@ -75,14 +79,14 @@ function OnyxProvidedKey({personalDetails}: any) {
       <Text style={{fontWeight: 'bold'}}>
         Render count: {renderCounter.current}
       </Text>
-      <Text>Subscribed keys: {Object.keys(personalDetails).length}</Text>
+      <Text>Keys count: {Object.keys(reports).length}</Text>
     </View>
   );
 }
 
 const WithOnyxProvidedKey = withOnyx<any, unknown>({
-  personalDetails: {
-    key: ONYX_KEYS.PERSONAL_DETAILS,
+  reports: {
+    key: ONYX_KEYS.COLLECTION.REPORTS,
   },
 })(OnyxProvidedKey);
 
@@ -91,7 +95,10 @@ const WithOnyxProvidedKey = withOnyx<any, unknown>({
  * It will only re-render when the data for the given key changes - updates to other keys won't trigger a re-render.
  */
 function JotaiProvidedKeySelector({id}: {id: string}) {
-  const user = useAtomWithOnyxById(personalDetailsAtom, id);
+  const report = useAtomWithOnyxById(
+    reportsAtom,
+    `${ONYX_KEYS.COLLECTION.REPORTS}${id}`,
+  );
   const renderCounter = useRef(0);
 
   useEffect(() => {
@@ -103,9 +110,8 @@ function JotaiProvidedKeySelector({id}: {id: string}) {
       <Text style={{fontWeight: 'bold', marginBottom: 4}}>
         Render count: {renderCounter.current}
       </Text>
-      <Text>Subscribed keys: 1</Text>
       <Text>
-        Key: {id}, Name: {user?.name ?? 'Unknown'}
+        Key: {id}, Name: {report?.reportName ?? 'Unknown'}
       </Text>
     </View>
   );
@@ -115,9 +121,7 @@ function JotaiProvidedKeySelector({id}: {id: string}) {
  * This component uses withOnyx HOC from 'react-native-onyx' to display the data for a given key on a collection stored in Onyx.
  * It will re-render when the data for the given key changes - updates to other keys will also trigger a re-render.
  */
-function OnyxProvidedKeySelector({id, personalDetails}: any) {
-  const user = personalDetails[id];
-
+function OnyxProvidedKeySelector({id, report}: any) {
   const renderCounter = useRef(0);
 
   useEffect(() => {
@@ -129,21 +133,18 @@ function OnyxProvidedKeySelector({id, personalDetails}: any) {
       <Text style={{fontWeight: 'bold', marginBottom: 4}}>
         Render count: {renderCounter.current}
       </Text>
-      <Text>Subscribed keys: {Object.keys(personalDetails).length}</Text>
       <Text>
-        Key: {id}, Name: {user?.name ?? 'Unknown'}
+        Key: {id}, Name: {report?.reportName ?? 'Unknown'}
       </Text>
     </View>
   );
 }
 
 const WithOnyxProvidedKeySelector = withOnyx<any, unknown>({
-  personalDetails: {
-    key: ONYX_KEYS.PERSONAL_DETAILS,
+  report: {
+    key: ({id}: {id: string}) => `${ONYX_KEYS.COLLECTION.REPORTS}${id}`,
   },
 })(OnyxProvidedKeySelector);
-
-const id = '0';
 
 function JotaiOnyxScreen() {
   return (
@@ -152,15 +153,17 @@ function JotaiOnyxScreen() {
       <View style={{flex: 1, rowGap: 2, marginBottom: 16}}>
         <Text style={{fontSize: 20, marginBottom: 8}}>Jotai</Text>
         <JotaiProvidedKey />
-        <JotaiProvidedKeySelector id={id} />
-        <JotaiProvidedKeySelector id={id} />
+        <JotaiProvidedKeySelector id={'0'} />
+        <JotaiProvidedKeySelector id={'0'} />
+        <JotaiProvidedKeySelector id={'1'} />
       </View>
 
       <View style={{flex: 1, rowGap: 2}}>
         <Text style={{fontSize: 20, marginBottom: 8}}>withOnyx</Text>
         <WithOnyxProvidedKey />
-        <WithOnyxProvidedKeySelector id={id} />
-        <WithOnyxProvidedKeySelector id={id} />
+        <WithOnyxProvidedKeySelector id={'0'} />
+        <WithOnyxProvidedKeySelector id={'0'} />
+        <WithOnyxProvidedKeySelector id={'1'} />
       </View>
     </ScrollView>
   );

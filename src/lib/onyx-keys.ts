@@ -2,6 +2,8 @@ export const ONYX_KEYS = {
   BETAS: 'betas',
   IS_LOADING_APP: 'isLoadingApp',
   PERSONAL_DETAILS: 'personalDetails',
-  REPORTS: 'reports',
-  REPORT_ACTIONS: 'reportActions',
+  COLLECTION: {
+    REPORTS: 'reports_',
+    REPORT_ACTIONS: 'reportActions_',
+  },
 };

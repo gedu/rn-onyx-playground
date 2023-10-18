@@ -2,7 +2,6 @@ import {useCallback} from 'react';
 import {atom, useAtomValue, type Atom} from 'jotai';
 import {selectAtom} from 'jotai/utils';
 import Onyx from 'react-native-onyx';
-import type {NullableProperties} from 'react-native-onyx/lib/types';
 
 interface Options {
   canEvict?: boolean;
@@ -12,7 +11,7 @@ interface Options {
  * This is a custom, read-only Jotai atom that connects to Onyx and listens for changes to a given key.
  * It provides a performant way of synchronizing Onyx data with the UI layer.
  */
-export function atomWithOnyx<Value extends NullableProperties<unknown>>(
+export function atomWithOnyx<Value>(
   key: string,
   initialValue: Value,
   options: Options = {
