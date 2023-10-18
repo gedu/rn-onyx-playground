@@ -1,11 +1,10 @@
 import React, {useCallback} from 'react';
 import {
-  Button,
   FlatList,
   ListRenderItem,
+  Pressable,
   StyleSheet,
   Text,
-  View,
 } from 'react-native';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import type {RootStackParamList} from '../stacks/root';
@@ -23,9 +22,16 @@ interface Item {
 // List experiments here
 const data: Item[] = [
   {
-    screen: 'JotaiOnyx',
+    screen: 'JotaiOnyxPersonalDetails',
     title: 'Onyx with Jotai',
-    description: 'Jotai as a React synchronisation layer for Onyx',
+    description:
+      'Jotai as a React synchronisation layer for Onyx, with a map object (key/value pairs)',
+  },
+  {
+    screen: 'JotaiOnyxReports',
+    title: 'Onyx with Jotai (collection)',
+    description:
+      'Jotai as a React synchronisation layer for Onyx, with a collection (key/value pairs)',
   },
 ];
 
@@ -42,13 +48,12 @@ function Home({navigation}: Props) {
 
   const renderItem: ListRenderItem<Item> = useCallback(
     ({item}) => (
-      <View style={styles.itemList}>
-        <Button
-          title={item.title}
-          onPress={() => navigation.navigate(item.screen)}
-        />
+      <Pressable
+        onPress={() => navigation.navigate(item.screen)}
+        style={styles.itemList}>
+        <Text style={styles.itemListTitle}>{item.title}</Text>
         <Text>{item.description}</Text>
-      </View>
+      </Pressable>
     ),
     [navigation],
   );
@@ -66,10 +71,15 @@ function Home({navigation}: Props) {
 const styles = StyleSheet.create({
   list: {
     paddingVertical: 30,
+    gap: 30,
   },
   itemList: {
     paddingHorizontal: 16,
-    alignItems: 'center',
+  },
+  itemListTitle: {
+    color: 'dodgerblue',
+    fontSize: 16,
+    marginBottom: 4,
   },
 });
 
