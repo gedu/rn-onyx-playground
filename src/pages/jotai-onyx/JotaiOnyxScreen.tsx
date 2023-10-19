@@ -1,5 +1,5 @@
-import React, {useEffect} from 'react';
-import {View, Text, FlatList, Button} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View, Text, FlatList, Button, Alert} from 'react-native';
 import Onyx, {withOnyx} from 'react-native-onyx';
 import {ONYX_KEYS} from '../../lib/onyx-keys';
 import {atomWithOnyx} from './atomWithOnyx';
@@ -10,9 +10,11 @@ type Props = {
 };
 
 const betasAtom = atomWithOnyx<string[]>(ONYX_KEYS.BETAS, []);
+const betasAtom2 = atomWithOnyx<string[]>(ONYX_KEYS.BETAS, []);
 
 function AddBetaButton() {
   const [_, setBetasFromAtom] = useAtom(betasAtom);
+  const [atoms] = useAtom(betasAtom2);
   return (
     <View style={{position: 'relative', right: 16}}>
       <Button
@@ -86,6 +88,26 @@ const OnyxBetaScrollList = withOnyx<any, Props>({
 })(ScrollListUsingOnyx);
 
 function JotaiOnyxScreen() {
+  const createTwoButtonAlert = () =>
+    Alert.alert('Alert Title', 'My Alert Msg', [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'OK',
+        onPress: () => {
+          Onyx.update([
+            {
+              onyxMethod: Onyx.METHOD.MERGE,
+              key: ONYX_KEYS.BETAS,
+              value: ['ALERT ONYX BUTTON'],
+            },
+          ]);
+        },
+      },
+    ]);
+
   useEffect(() => {
     console.log('JotaiOnyxScreen - useEffect');
     return () => {
@@ -95,6 +117,7 @@ function JotaiOnyxScreen() {
 
   return (
     <View style={{flex: 1}}>
+      <Button title="Alert" onPress={createTwoButtonAlert} />
       <AddBetaButton />
       <OnyxBetaScrollList />
       <ScrollListUsingJotai />

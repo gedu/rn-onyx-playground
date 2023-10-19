@@ -1,7 +1,7 @@
 import {atom} from 'jotai';
 import Onyx from 'react-native-onyx';
 
-let currentSessionId = undefined;
+let currentSessionId: number | null;
 
 export function atomWithOnyx<Value>(key: string, initialValue: Value) {
   console.log('atomWithOnyx');
@@ -28,7 +28,7 @@ export function atomWithOnyx<Value>(key: string, initialValue: Value) {
       console.log('onMount - return');
       if (currentSessionId) {
         Onyx.disconnect(currentSessionId);
-        currentSessionId = undefined;
+        currentSessionId = null;
       }
     };
   };
