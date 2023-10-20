@@ -23,13 +23,7 @@ interface Item {
 // List experiments here
 const data: Item[] = [
   {
-    screen: 'JotaiOnyxPersonalDetails',
-    title: 'Onyx with Jotai',
-    description:
-      'Jotai as a React synchronisation layer for Onyx, with a map object (key/value pairs)',
-  },
-  {
-    screen: 'JotaiOnyxReports',
+    screen: 'JotaiOnyxCollection',
     title: 'Onyx with Jotai (collection)',
     description:
       'Jotai as a React synchronisation layer for Onyx, with a collection (key/value pairs)',

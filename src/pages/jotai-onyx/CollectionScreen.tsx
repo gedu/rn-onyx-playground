@@ -146,7 +146,7 @@ const WithOnyxProvidedKeySelector = withOnyx<any, unknown>({
   },
 })(OnyxProvidedKeySelector);
 
-function JotaiOnyxScreen() {
+function CollectionScreen() {
   return (
     <ScrollView>
       <EditComponent />
@@ -169,4 +169,4 @@ function JotaiOnyxScreen() {
   );
 }
 
-export default JotaiOnyxScreen;
+export default CollectionScreen;
