@@ -4,6 +4,7 @@ export const ONYX_KEYS = {
   PERSONAL_DETAILS: 'personalDetails',
   COLLECTION: {
     REPORTS: 'reports_',
+    POLICIES: 'policies_',
     REPORT_ACTIONS: 'reportActions_',
   },
 };

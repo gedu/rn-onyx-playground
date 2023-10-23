@@ -2,12 +2,24 @@ import React, {useEffect, useRef} from 'react';
 import {View, Text, Button, ScrollView} from 'react-native';
 import {useAtomValue} from 'jotai';
 import {ONYX_KEYS} from '../../lib/onyx-keys';
-import {atomWithOnyx, useAtomWithOnyxById} from './atomWithOnyx';
+import {atomWithOnyx, useSelectOnyxAtomById} from './atomWithOnyx';
 import Onyx, {withOnyx} from 'react-native-onyx';
-import {createRandomReport} from '../../lib/local-source/reportSource';
+import {
+  createRandomReport,
+  type Report,
+} from '../../lib/local-source/reportSource';
+import {
+  createRandomPolicy,
+  type Policy,
+} from '../../lib/local-source/policiesSource';
 
-const reportsAtom = atomWithOnyx<Record<string, unknown>>(
+const reportsAtom = atomWithOnyx<Record<string, Report>>(
   ONYX_KEYS.COLLECTION.REPORTS,
+  {},
+);
+
+const policiesAtom = atomWithOnyx<Record<string, Policy>>(
+  ONYX_KEYS.COLLECTION.POLICIES,
   {},
 );
 
@@ -18,25 +30,29 @@ function EditComponent() {
   return (
     <View style={{flex: 1}}>
       <Button
-        title="Change item 0"
+        title="Randomize report 0"
         onPress={() =>
-          Onyx.merge(`${ONYX_KEYS.COLLECTION.REPORTS}0`, {
-            ...createRandomReport(),
-            reportID: '0',
-          })
+          Onyx.merge(`${ONYX_KEYS.COLLECTION.REPORTS}0`, createRandomReport(0))
         }
       />
 
       <Button
-        title="Change item 1"
+        title="Randomize report 1"
         onPress={() =>
           Onyx.merge(
             `${ONYX_KEYS.COLLECTION.REPORTS}1`,
-            Onyx.merge(`${ONYX_KEYS.COLLECTION.REPORTS}1`, {
-              ...createRandomReport(),
-              reportID: '1',
-            }),
+            Onyx.merge(
+              `${ONYX_KEYS.COLLECTION.REPORTS}1`,
+              createRandomReport(1),
+            ),
           )
+        }
+      />
+
+      <Button
+        title="Change policy 0"
+        onPress={() =>
+          Onyx.merge(`${ONYX_KEYS.COLLECTION.POLICIES}0`, createRandomPolicy(0))
         }
       />
     </View>
@@ -95,9 +111,8 @@ const WithOnyxProvidedKey = withOnyx<any, unknown>({
  * It will only re-render when the data for the given key changes - updates to other keys won't trigger a re-render.
  */
 function JotaiProvidedKeySelector({id}: {id: string}) {
-  const report = useAtomWithOnyxById(
-    reportsAtom,
-    `${ONYX_KEYS.COLLECTION.REPORTS}${id}`,
+  const report = useAtomValue(
+    useSelectOnyxAtomById(reportsAtom, `${ONYX_KEYS.COLLECTION.REPORTS}${id}`),
   );
   const renderCounter = useRef(0);
 
@@ -112,6 +127,45 @@ function JotaiProvidedKeySelector({id}: {id: string}) {
       </Text>
       <Text>
         Key: {id}, Name: {report?.reportName ?? 'Unknown'}
+      </Text>
+    </View>
+  );
+}
+
+/**
+ * This component uses Jotai to display the data for a given key on a collection stored in Onyx.
+ * It will only re-render when the data for the given key changes - updates to other keys won't trigger a re-render.
+ */
+function JotaiProvidedKeyDependantSelector({id}: {id: string}) {
+  const report = useAtomValue(
+    useSelectOnyxAtomById(reportsAtom, `${ONYX_KEYS.COLLECTION.REPORTS}${id}`),
+  );
+
+  const policy = useAtomValue(
+    useSelectOnyxAtomById(
+      policiesAtom,
+      `${ONYX_KEYS.COLLECTION.POLICIES}${report?.policyID}`,
+    ),
+  );
+
+  const renderCounter = useRef(0);
+
+  useEffect(() => {
+    renderCounter.current += 1;
+  });
+
+  return (
+    <View style={{flex: 1, padding: 4, backgroundColor: 'pink'}}>
+      <Text style={{fontWeight: 'bold', marginBottom: 4}}>
+        Render count: {renderCounter.current}
+      </Text>
+      <Text>Key: {id}</Text>
+      <Text>
+        Report: {report?.reportID ?? '?'}, Name:{' '}
+        {report?.reportName ?? 'Unknown'}
+      </Text>
+      <Text>
+        Policy: {policy?.id ?? '?'}, Name: {policy?.name ?? 'Unknown'}
       </Text>
     </View>
   );
@@ -153,6 +207,7 @@ function CollectionScreen() {
       <View style={{flex: 1, rowGap: 2, marginBottom: 16}}>
         <Text style={{fontSize: 20, marginBottom: 8}}>Jotai</Text>
         <JotaiProvidedKey />
+        <JotaiProvidedKeyDependantSelector id={'0'} />
         <JotaiProvidedKeySelector id={'0'} />
         <JotaiProvidedKeySelector id={'0'} />
         <JotaiProvidedKeySelector id={'1'} />

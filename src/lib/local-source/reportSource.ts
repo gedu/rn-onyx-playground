@@ -1,9 +1,10 @@
 import {faker} from '@faker-js/faker';
 import {ONYX_KEYS} from '../onyx-keys';
+import {createRandomCollection} from './utils';
 
-function createRandomReport() {
+function createRandomReport(index: number) {
   return {
-    reportID: faker.string.numeric({length: 16}),
+    reportID: index.toString(),
     reportName: `#${faker.word.noun()}`,
     type: faker.helpers.arrayElement(['chat']),
     chatType: faker.helpers.arrayElement([
@@ -14,7 +15,7 @@ function createRandomReport() {
     ownerAccountID: faker.string.numeric({length: 16}),
     managerEmail: faker.internet.email(),
     managerID: faker.string.numeric({length: 16}),
-    policyID: faker.string.alphanumeric({length: 16, casing: 'upper'}),
+    policyID: index.toString(),
     participantAccountIDs: [faker.string.numeric({length: 16})],
     isPinned: faker.datatype.boolean(),
     lastReadTime: faker.date.past().toISOString(),
@@ -33,7 +34,7 @@ function createRandomReport() {
     hasOutstandingIOU: faker.datatype.boolean(),
     writeCapability: faker.helpers.arrayElement(['all']),
     total: faker.number.int(),
-    currency: faker.helpers.arrayElement(['USD', 'GBP', 'EUR']),
+    currency: faker.finance.currency().code,
     submitterPayPalMeAddress: faker.internet.url(),
     isWaitingOnBankAccount: faker.datatype.boolean(),
     hasDraft: faker.datatype.boolean(),
@@ -48,16 +49,12 @@ function createRandomReport() {
 }
 
 function createRandomReportsMap(length = 500) {
-  const list = new Array(length).fill(null).map(createRandomReport);
-
-  return list.reduce<Record<string, unknown>>((acc, report) => {
-    if (acc === null) {
-      return {};
-    }
-
-    acc[`${ONYX_KEYS.COLLECTION.REPORTS}${report.reportID}`] = report;
-    return acc;
-  }, {}) as any;
+  return createRandomCollection(
+    report => `${ONYX_KEYS.COLLECTION.REPORTS}${report.reportID}`,
+    createRandomReport,
+    length,
+  );
 }
 
 export {createRandomReport, createRandomReportsMap};
+export type Report = ReturnType<typeof createRandomReport>;
