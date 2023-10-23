@@ -134,7 +134,6 @@ function JotaiProvidedKeySelector({id}: {id: string}) {
 
 /**
  * This component uses Jotai to display the data for a given key on a collection stored in Onyx.
- * It will only re-render when the data for the given key changes - updates to other keys won't trigger a re-render.
  */
 function JotaiProvidedKeyDependantSelector({id}: {id: string}) {
   const report = useAtomValue(
@@ -172,8 +171,45 @@ function JotaiProvidedKeyDependantSelector({id}: {id: string}) {
 }
 
 /**
+ * This component uses withOnyx to display the data for a given key + a dependant key on a collection item stored in Onyx.
+ */
+function OnyxProvidedKeyDependantSelector({id, report, policy}: any) {
+  const renderCounter = useRef(0);
+
+  useEffect(() => {
+    renderCounter.current += 1;
+  });
+
+  return (
+    <View style={{flex: 1, padding: 4, backgroundColor: 'pink'}}>
+      <Text style={{fontWeight: 'bold', marginBottom: 4}}>
+        Render count: {renderCounter.current}
+      </Text>
+      <Text>Key: {id}</Text>
+      <Text>
+        Report: {report?.reportID ?? '?'}, Name:{' '}
+        {report?.reportName ?? 'Unknown'}
+      </Text>
+      <Text>
+        Policy: {policy?.id ?? '?'}, Name: {policy?.name ?? 'Unknown'}
+      </Text>
+    </View>
+  );
+}
+
+const WithOnyxProvidedKeyDependantSelector = withOnyx<any, unknown>({
+  report: {
+    key: ({id}: {id: string}) => `${ONYX_KEYS.COLLECTION.REPORTS}${id}`,
+  },
+  policy: {
+    key: ({report}: any) =>
+      `${ONYX_KEYS.COLLECTION.POLICIES}${report?.policyID}`,
+  },
+})(OnyxProvidedKeyDependantSelector);
+
+/**
  * This component uses withOnyx HOC from 'react-native-onyx' to display the data for a given key on a collection stored in Onyx.
- * It will re-render when the data for the given key changes - updates to other keys will also trigger a re-render.
+ * It will re-render when the data for the given key changes - updates to other keys won't trigger a re-render.
  */
 function OnyxProvidedKeySelector({id, report}: any) {
   const renderCounter = useRef(0);
@@ -200,28 +236,34 @@ const WithOnyxProvidedKeySelector = withOnyx<any, unknown>({
   },
 })(OnyxProvidedKeySelector);
 
-function CollectionScreen() {
+function CollectionScreenJotai() {
   return (
     <ScrollView>
       <EditComponent />
-      <View style={{flex: 1, rowGap: 2, marginBottom: 16}}>
-        <Text style={{fontSize: 20, marginBottom: 8}}>Jotai</Text>
-        <JotaiProvidedKey />
-        <JotaiProvidedKeyDependantSelector id={'0'} />
-        <JotaiProvidedKeySelector id={'0'} />
-        <JotaiProvidedKeySelector id={'0'} />
-        <JotaiProvidedKeySelector id={'1'} />
-      </View>
 
-      <View style={{flex: 1, rowGap: 2}}>
-        <Text style={{fontSize: 20, marginBottom: 8}}>withOnyx</Text>
-        <WithOnyxProvidedKey />
-        <WithOnyxProvidedKeySelector id={'0'} />
-        <WithOnyxProvidedKeySelector id={'0'} />
-        <WithOnyxProvidedKeySelector id={'1'} />
-      </View>
+      <Text style={{fontSize: 20, marginBottom: 8}}>Jotai</Text>
+      <JotaiProvidedKey />
+      <JotaiProvidedKeyDependantSelector id={'0'} />
+      <JotaiProvidedKeySelector id={'0'} />
+      <JotaiProvidedKeySelector id={'0'} />
+      <JotaiProvidedKeySelector id={'1'} />
     </ScrollView>
   );
 }
 
-export default CollectionScreen;
+function CollectionScreenOnyx() {
+  return (
+    <ScrollView>
+      <EditComponent />
+
+      <Text style={{fontSize: 20, marginBottom: 8}}>withOnyx</Text>
+      <WithOnyxProvidedKey />
+      <WithOnyxProvidedKeyDependantSelector id={'0'} />
+      <WithOnyxProvidedKeySelector id={'0'} />
+      <WithOnyxProvidedKeySelector id={'0'} />
+      <WithOnyxProvidedKeySelector id={'1'} />
+    </ScrollView>
+  );
+}
+
+export {CollectionScreenJotai, CollectionScreenOnyx};

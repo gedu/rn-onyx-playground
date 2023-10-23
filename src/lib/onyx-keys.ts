@@ -7,4 +7,4 @@ export const ONYX_KEYS = {
     POLICIES: 'policies_',
     REPORT_ACTIONS: 'reportActions_',
   },
-};
+} as const;

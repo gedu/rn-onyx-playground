@@ -23,10 +23,16 @@ interface Item {
 // List experiments here
 const data: Item[] = [
   {
-    screen: 'JotaiOnyxCollection',
-    title: 'Onyx with Jotai (collection)',
+    screen: 'JotaiCollection',
+    title: 'Onyx + Jotai (collection)',
     description:
       'Jotai as a React synchronisation layer for Onyx, with a collection (key/value pairs)',
+  },
+  {
+    screen: 'WithOnyxCollection',
+    title: 'Onyx + withOnyx (collection)',
+    description:
+      'WithOnyx HOC as a React synchronisation layer for Onyx, with a collection (key/value pairs)',
   },
 ];
 
