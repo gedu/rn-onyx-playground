@@ -63,7 +63,10 @@ export function atomWithOnyx<Value>(
 /**
  * An abstraction over collection atoms stored with `atomWithOnyx` that allows you to select a single item by id.
  */
-export function useSelectOnyxAtomById(collectionAtom: Atom<any>, id: string) {
+export function useSelectOnyxAtomById<T>(
+  collectionAtom: Atom<Record<string, T>>,
+  id: string,
+) {
   return selectAtom(
     collectionAtom,
     useCallback(collection => collection[id], [id]),
