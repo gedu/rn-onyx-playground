@@ -1,36 +1,36 @@
-import {faker} from '@faker-js/faker';
+import {
+  rand,
+  randAvatar,
+  randEmail,
+  randBoolean,
+  randCurrencyCode,
+  randNumber,
+  randPastDate,
+  randWord,
+} from '@ngneat/falso';
 import {createRandomCollection} from './utils';
 import {ONYX_KEYS} from '../onyx-keys';
 
 function createRandomPolicy(index: number) {
   return {
     id: index.toString(),
-    name: faker.word.noun(),
-    role: faker.helpers.arrayElements(['admin', 'auditor', 'user']),
-    type: faker.helpers.arrayElements([
-      'free',
-      'personal',
-      'corporate',
-      'team',
-    ]),
-    owner: faker.internet.email(),
-    ownerAccountID: faker.string.numeric({length: 16}),
-    outputCurrency: faker.finance.currency().code,
-    avatar: faker.internet.avatar(),
+    name: randWord(),
+    role: rand(['admin', 'auditor', 'user']),
+    type: rand(['free', 'personal', 'corporate', 'team']),
+    owner: randEmail(),
+    ownerAccountID: randNumber({length: 16}).toLocaleString(),
+    outputCurrency: randCurrencyCode(),
+    avatar: randAvatar(),
     errorFields: {},
     pendingAction: {},
     errors: {},
-    isFromFullPolicy: faker.datatype.boolean(),
-    lastModified: faker.date.past().toISOString(),
+    isFromFullPolicy: randBoolean(),
+    lastModified: randPastDate().toISOString(),
     customUnits: {},
-    areChatRoomsEnabled: faker.datatype.boolean(),
-    isPolicyExpenseChatEnabled: faker.datatype.boolean(),
-    autoReporting: faker.datatype.boolean(),
-    autoReportingFrequency: faker.helpers.arrayElements([
-      'immediate',
-      'weekly',
-      'monthly',
-    ]),
+    areChatRoomsEnabled: randBoolean(),
+    isPolicyExpenseChatEnabled: randBoolean(),
+    autoReporting: randBoolean(),
+    autoReportingFrequency: rand(['immediate', 'weekly', 'monthly']),
   };
 }
 
