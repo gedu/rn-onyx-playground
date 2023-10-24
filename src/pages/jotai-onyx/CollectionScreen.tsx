@@ -39,13 +39,7 @@ function EditComponent() {
       <Button
         title="Randomize report 1"
         onPress={() =>
-          Onyx.merge(
-            `${ONYX_KEYS.COLLECTION.REPORTS}1`,
-            Onyx.merge(
-              `${ONYX_KEYS.COLLECTION.REPORTS}1`,
-              createRandomReport(1),
-            ),
-          )
+          Onyx.merge(`${ONYX_KEYS.COLLECTION.REPORTS}1`, createRandomReport(1))
         }
       />
 
