@@ -34,6 +34,12 @@ const data: Item[] = [
     description:
       'Jotai as a React synchronisation layer for Onyx, with a collection (key/value pairs)',
   },
+  {
+    screen: 'ComplexReportScreenList',
+    title: 'Jotai vs Onyx (Complex List)',
+    description:
+      'See the difference between Jotai and Onyx when rendering a complex list',
+  },
 ];
 
 const keyExtractor = (item: Item) => item.title;
