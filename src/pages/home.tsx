@@ -23,16 +23,10 @@ interface Item {
 // List experiments here
 const data: Item[] = [
   {
-    screen: 'JotaiOnyxPersonalDetails',
-    title: 'Onyx with Jotai',
+    screen: 'WithOnyxCollection',
+    title: 'Onyx + withOnyx (collection)',
     description:
-      'Jotai as a React synchronisation layer for Onyx, with a map object (key/value pairs)',
-  },
-  {
-    screen: 'JotaiOnyxReports',
-    title: 'Onyx with Jotai (collection)',
-    description:
-      'Jotai as a React synchronisation layer for Onyx, with a collection (key/value pairs)',
+      'WithOnyx HOC as a React synchronisation layer for Onyx, with a collection (key/value pairs)',
   },
   {
     screen: 'ComplexReportScreenList',
@@ -43,7 +37,6 @@ const data: Item[] = [
 ];
 
 const keyExtractor = (item: Item) => item.title;
-
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 function Home({navigation}: Props) {

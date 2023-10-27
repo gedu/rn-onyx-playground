@@ -1,14 +1,17 @@
 import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Home from '../pages/home';
-import JotaiOnyxPersonalDetails from '../pages/jotai-onyx/PersonalDetailsScreen';
-import JotaiOnyxReports from '../pages/jotai-onyx/ReportsScreen';
 import ComplexReportScreenList from '../pages/jotai-onyx-complex-list/ComplexReportScreenList';
+
+import {
+  CollectionScreenJotai,
+  CollectionScreenOnyx,
+} from '../pages/jotai-onyx/CollectionScreen';
 
 export type RootStackParamList = {
   Home: undefined;
-  JotaiOnyxPersonalDetails: undefined;
-  JotaiOnyxReports: undefined;
+  JotaiCollection: undefined;
+  WithOnyxCollection: undefined;
   ComplexReportScreenList: undefined;
 };
 
@@ -23,14 +26,14 @@ function RootStack() {
         options={{title: 'Experiments'}}
       />
       <Stack.Screen
-        name="JotaiOnyxPersonalDetails"
-        component={JotaiOnyxPersonalDetails}
-        options={{title: 'Jotai + Onyx (Personal Details)'}}
+        name="JotaiCollection"
+        component={CollectionScreenJotai}
+        options={{title: 'Jotai + Onyx (Collection)'}}
       />
       <Stack.Screen
-        name="JotaiOnyxReports"
-        component={JotaiOnyxReports}
-        options={{title: 'Jotai + Onyx (Reports)'}}
+        name="WithOnyxCollection"
+        component={CollectionScreenOnyx}
+        options={{title: 'withOnyx + Onyx (Collection)'}}
       />
       <Stack.Screen
         name="ComplexReportScreenList"

@@ -1,5 +1,5 @@
 import {useCallback} from 'react';
-import {atom, useAtomValue, type Atom} from 'jotai';
+import {atom, type Atom} from 'jotai';
 import {selectAtom} from 'jotai/utils';
 import Onyx from 'react-native-onyx';
 
@@ -63,11 +63,12 @@ export function atomWithOnyx<Value>(
 /**
  * An abstraction over collection atoms stored with `atomWithOnyx` that allows you to select a single item by id.
  */
-export function useAtomWithOnyxById(collectionAtom: Atom<any>, id: string) {
-  return useAtomValue(
-    selectAtom(
-      collectionAtom,
-      useCallback(collection => collection[id], [id]),
-    ),
+export function useSelectOnyxAtomById<T>(
+  collectionAtom: Atom<Record<string, T>>,
+  id: string,
+) {
+  return selectAtom(
+    collectionAtom,
+    useCallback(collection => collection[id], [id]),
   );
 }
